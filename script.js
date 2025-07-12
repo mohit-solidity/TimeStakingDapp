@@ -22,7 +22,7 @@ async function switchToSepolia() {
         method: "wallet_switchEthereumChain",
         params: [{ chainId: "0xaa36a7" }], // ✅ Sepolia chain ID in hex
       });
-      alert("✅ Switched to Sepolia!");
+      showPopup("Switched To Sepolia","success");
     } catch (switchError) {
       // If Sepolia is not added to MetaMask
       if (switchError.code === 4902) {
@@ -36,7 +36,6 @@ async function switchToSepolia() {
                 name: "SepoliaETH",
                 symbol: "ETH",
                 decimals: 18,
-                showPopup("Switched To Sepolia","success");
               },
               rpcUrls: ["https://rpc.sepolia.org"],
               blockExplorerUrls: ["https://sepolia.etherscan.io"],
@@ -59,8 +58,8 @@ async function connect() {
     try{
       provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts",[]);
-      showPopup(`Wallet Connected  `,"success");
-      switchToSepolia();
+      showPopup(`Wallet Connected  `, "success");
+      await switchToSepolia();
       window.location.href = "dashboard.html";
     }catch(err){
        showPopup(`Error Connecting : ${err.reason}`,"error");
