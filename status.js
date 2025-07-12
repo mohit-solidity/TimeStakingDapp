@@ -1,12 +1,14 @@
 let provider ,signer,userAddress,getstartTime;
-const contractAddress ="0x7537ef8aC63C3cCf0751E3Bfe7394E8A144a258e";
+const contractAddress ="0x67889E5E3FAC38DA8379325190aC219325e511AB";
 const abi = ["function checkYield() view returns(uint)",
     "function stake(uint) payable",
     "function balance(address) view returns(uint)",
     "function startTime(address) view returns(uint)",
     "function endTime(address) view returns(uint)",
     "function daysStaked(address) view returns(uint)",
-    "function withdraw()"
+    "function withdraw()",
+    "function emergencyWithdraw()",
+    "function calculateReward() view returns(uint)"
 ];
 window.onload = async function (){
     showLoader()
@@ -57,8 +59,14 @@ async function userStatus(){
     document.getElementById("userBalance").innerText = `Staked Balance : ${ethers.utils.formatEther(userBalance)} ETH`;
     let startTime = new Date(getstartTime.toNumber()*1000).toLocaleString();
     let endTime = new Date(getendTime.toNumber()*1000).toLocaleString();
-    document.getElementById("plan").innerText = `Locked Days : ${daysStakedUser} Days\n\nAPY(Annual Percentage Yield) : ${yield}%\n\nStart Time : ${startTime}\n\nEnd Time : ${endTime}`;
+    document.getElementById("plan").innerText = `Locked Days : ${daysStakedUser} Days\n\nAPY(Annual Percentage Yield) : ${yield}%\n\nStart Time : ${startTime}\n\nEnd Time : ${endTime}\n`;
 }
+async function totalReward(){
+    let totalReward = await contract.calculateReward();
+    document.getElementById("totalReward").style.display = "block";
+    document.getElementById("totalReward").innerText = `Total Reward : ${ethers.utils.formatEther(totalReward)} ETH`
+}
+setInterval(totalReward,2000);
 async function back(){
     window.location.href = "dashboard.html";
 
@@ -75,5 +83,20 @@ async function withdraw(){
         showPopup("Transaction Successful","success");
     }catch(err){
         showPopup(`Error : ${err.reason||err.message}`,"error");
+    }
+}
+async function emergencyWithdraw(){
+    try{
+        const userChoice = confirm("You Are Withdrawing Before Staked Period\nAs a Penalty 10% Amount Will Deduct From Your Actual Amount And No Staked Reward Will Provided\nAre You Sure ? ");
+        if(userChoice){
+            showPopup("Please Confirm Transaction");
+            let tx = await contract.emergencyWithdraw();
+            showPopup("Transaction Submitted\nWait For Approval","success");
+            await tx.wait();
+            showPopup("Transaction Successful","success");
+            window.location.href = "dashboard.html";
+        }
+    }catch(err){
+        showPopup(`Error : ${err.reason||err.message}`,"errpr");
     }
 }
