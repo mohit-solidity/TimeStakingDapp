@@ -42,10 +42,10 @@ async function switchToSepolia() {
             }],
           });
         } catch (addError) {
-          showPopup("❌ Could not add Sepolia network: " + addError.message,"error");
+          throw new Error("❌ Could not add Sepolia network: ");
         }
       } else {
-        showPopup("❌ Could not switch to Sepolia: " + switchError.message,"error");
+        throw new Error("❌ Could not switch to Sepolia: ");
       }
     }
   } else {
