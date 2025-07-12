@@ -15,6 +15,44 @@ function showPopup(message, type = "info") {
     popup.style.display = "none";
   }, 3000);
 }
+async function switchToSepolia() {
+  if (window.ethereum) {
+    try {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0xaa36a7" }], // ✅ Sepolia chain ID in hex
+      });
+      alert("✅ Switched to Sepolia!");
+    } catch (switchError) {
+      // If Sepolia is not added to MetaMask
+      if (switchError.code === 4902) {
+        try {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [{
+              chainId: "0xaa36a7",
+              chainName: "Sepolia Test Network",
+              nativeCurrency: {
+                name: "SepoliaETH",
+                symbol: "ETH",
+                decimals: 18,
+                showPopup("Switched To Sepolia","success");
+              },
+              rpcUrls: ["https://rpc.sepolia.org"],
+              blockExplorerUrls: ["https://sepolia.etherscan.io"],
+            }],
+          });
+        } catch (addError) {
+          showPopup("❌ Could not add Sepolia network: " + addError.message,"error");
+        }
+      } else {
+        showPopup("❌ Could not switch to Sepolia: " + switchError.message,"error");
+      }
+    }
+  } else {
+    alert("❌ MetaMask not detected");
+  }
+}
 
 async function connect() {
   if(window.ethereum){
@@ -22,6 +60,7 @@ async function connect() {
       provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts",[]);
       showPopup(`Wallet Connected  `,"success");
+      switchToSepolia();
       window.location.href = "dashboard.html";
     }catch(err){
        showPopup(`Error Connecting : ${err.reason}`,"error");
