@@ -1,5 +1,5 @@
 let provider ,signer,userAddress,startTime;
-const contractAddress ="0x7537ef8aC63C3cCf0751E3Bfe7394E8A144a258e";
+const contractAddress ="0x67889E5E3FAC38DA8379325190aC219325e511AB";
 const abi = ["function checkYield() view returns(uint)",
     "function stake(uint) payable",
     "function balance(address) view returns(uint)",
